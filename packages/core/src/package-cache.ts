@@ -2,9 +2,8 @@ import Package from './package';
 import { realpathSync } from 'fs';
 import { getOrCreate } from './get-or-create';
 import resolvePackagePath from 'resolve-package-path';
-import { dirname, sep, join } from 'path';
+import { dirname, sep } from 'path';
 import { sync as pkgUpSync } from 'pkg-up';
-import ExtendedPackage from './extended-package';
 
 export default class PackageCache {
   resolve(packageName: string, fromPackage: Package): Package {
@@ -55,15 +54,7 @@ export default class PackageCache {
   get(packageRoot: string) {
     let root = realpathSync(packageRoot);
     let p = getOrCreate(this.rootCache, root, () => {
-      let pkg = new Package(root, this);
-      let meta = pkg.packageJSON['ember-addon'];
-
-      if (meta && meta.paths) {
-        let inRepoAddons = meta.paths.map((path: string) => this.get(join(root, path)));
-        return new ExtendedPackage(root, inRepoAddons, this);
-      }
-
-      return pkg;
+      return new Package(root, this);
     });
     return p;
   }
